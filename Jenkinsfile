@@ -9,30 +9,13 @@ pipeline {
     }
 
     stages {
-        stage('Build app image'){
-            steps{
-                script{
-                    dockerTag = "RC-${env.BUILD_ID}.${env.GIT_COMMIT.take(7)}"
-                    applicationImage = docker.build("$imageName:$dockerTag",".")
-                }
-            }
-        }
-        stage('Push image'){
-            steps{
-                script{
-                    docker.withRegistry("$dockerRegistry", "$registryCredentials") {
-                        applicationImage.push()
-                        applicationImage.push('latest')
-                }
-            }
-        }
         stage('Clone repository') {
             steps {
                 // Clone github repository
                 git branch: 'main', url: 'https://github.com/Damian14349/Frontend.git'
             }
         }
-                stage('Show files') {
+        stage('Show files') {
             steps {
                 // print files
                 sh 'ls -la'
@@ -60,12 +43,29 @@ pipeline {
                 }
             }    
         }
+        stage('Build app image'){
+            steps{
+                script{
+                    dockerTag = "RC-${env.BUILD_ID}.${env.GIT_COMMIT.take(7)}"
+                    applicationImage = docker.build("$imageName:$dockerTag",".")
+                }
+            }
+        }
+        stage('Push image'){
+            steps{
+                script{
+                    docker.withRegistry("$dockerRegistry", "$registryCredentials") {
+                        applicationImage.push()
+                        applicationImage.push('latest')
+                    }
+                }
+            }
+        }
     }
     post {
         always {
             junit "test-results/*.xml"
             cleanWs()
         }
-    }
     }
 }
