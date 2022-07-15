@@ -9,10 +9,10 @@ pipeline {
     }
 
     stages {
-        stage('Clone repository') {
+        stage('Get code') {
             steps {
-                // Clone github repository
-                git branch: 'main', url: 'https://github.com/Damian14349/Frontend.git'
+                // CGet code from github repo
+                checkout scm
             }
         }
         stage('Show files') {
